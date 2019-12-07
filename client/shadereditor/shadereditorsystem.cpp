@@ -9,8 +9,8 @@
 
 #include "cbase.h"
 #include "client_factorylist.h"
-#include "shadereditor/ivshadereditor.h"
-#include "shadereditor/sedit_modelrender.h"
+#include "ShaderEditor/IVShaderEditor.h"
+#include "ShaderEditor/SEdit_ModelRender.h"
 #include "ivrenderview.h"
 #include "iviewrender.h"
 #include "viewrender.h"
@@ -23,7 +23,6 @@
 #include "rendertexture.h"
 #include "c_rope.h"
 #include "model_types.h"
-#include "filesystem.h"
 #ifdef SWARM_DLL
 #include "modelrendersystem.h"
 #endif
@@ -82,13 +81,13 @@ bool ShaderEditorHandler::Init()
 
 	char modulePath[MAX_PATH*4];
 #ifdef SWARM_DLL
-	Q_snprintf( modulePath, sizeof( modulePath ), "%s/bin/shadereditor_swarm.dll", engine->GetGameDirectory() );
+	Q_snprintf( modulePath, sizeof( modulePath ), "%s/bin/shadereditor_swarm.dll\0", engine->GetGameDirectory() );
 #elif SOURCE_2006
-	Q_snprintf( modulePath, sizeof( modulePath ), "%s/bin/shadereditor_2006.dll", engine->GetGameDirectory() );
+	Q_snprintf( modulePath, sizeof( modulePath ), "%s/bin/shadereditor_2006.dll\0", engine->GetGameDirectory() );
 #elif SOURCE_2013
-	Q_snprintf( modulePath, sizeof( modulePath ), "%s/bin/shadereditor_2013.dll", engine->GetGameDirectory() );
+	Q_snprintf( modulePath, sizeof( modulePath ), "%s/bin/shadereditor_2013.dll\0", engine->GetGameDirectory() );
 #else
-	Q_snprintf( modulePath, sizeof( modulePath ), "%s/bin/shadereditor_2007.dll", engine->GetGameDirectory() );
+	Q_snprintf( modulePath, sizeof( modulePath ), "%s/bin/shadereditor_2007.dll\0", engine->GetGameDirectory() );
 #endif
 	shaderEditorModule = Sys_LoadModule( modulePath );
 	if ( shaderEditorModule )
@@ -158,17 +157,16 @@ void ShaderEditorHandler::Update( float frametime )
 
 CThreadMutex m_Lock;
 
-void ShaderEditorHandler::InitialPreRender()
+void ShaderEditorHandler::PreRender()
 {
 	if ( IsReady() && view )
 	{
-		m_Lock.Lock();
-
 		// make sure the class matches
 		const CViewSetup *v = view->GetPlayerViewSetup();
 		CViewSetup_SEdit_Shared stableVSetup( *v );
 		shaderEdit->OnPreRender( &stableVSetup );
 
+		m_Lock.Lock();
 		PrepareCallbackData();
 		m_Lock.Unlock();
 	}
@@ -192,10 +190,10 @@ void ShaderEditorHandler::CustomViewRender( int *viewId, const VisibleFogVolumeI
 	if ( IsReady() )
 		shaderEdit->OnSceneRender();
 }
-void ShaderEditorHandler::UpdateSkymask( bool bCombineMode, int x, int y, int w, int h )
+void ShaderEditorHandler::UpdateSkymask( bool bCombineMode )
 {
 	if ( IsReady() )
-		shaderEdit->OnUpdateSkymask( bCombineMode, x, y, w, h );
+		shaderEdit->OnUpdateSkymask( bCombineMode );
 }
 void ShaderEditorHandler::CustomPostRender()
 {

@@ -8,10 +8,10 @@
 
 #include "cbase.h"
 
-#include "vgui/IInput.h"
-#include "vgui_controls/Controls.h"
+#include "vgui/iinput.h"
+#include "vgui_controls/controls.h"
 
-#include "shadereditor/sedit_modelrender.h"
+#include "ShaderEditor/SEdit_ModelRender.h"
 #include "model_types.h"
 
 #ifndef SOURCE_2006
