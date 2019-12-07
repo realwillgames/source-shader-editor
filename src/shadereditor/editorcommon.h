@@ -1053,7 +1053,6 @@ bool SetMaterialVar_Vec( IMaterial *pMat, const char *varName, const float a );
 bool SetMaterialVar_Int( IMaterial *pMat, const char *varName, const int a );
 
 void GeneralFramebufferUpdate( IMatRenderContext *pRenderContext );
-void UpdateScreenEffectTexture( ITexture *pTexture, int x, int y, int w, int h, bool bDestFullScreen = false, Rect_t *pActualRect = NULL );
 
 #include "filesystem.h"
 #include "utlbuffer.h"

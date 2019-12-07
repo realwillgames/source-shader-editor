@@ -134,7 +134,6 @@ void RenderFullScreenQuad( IMaterial *pMat )
 	pMeshBuilder.End();
 	pMesh->Draw();
 }
-
 void GeneralFramebufferUpdate( IMatRenderContext *pRenderContext )
 {
 	Rect_t srcRect;
@@ -149,49 +148,6 @@ void GeneralFramebufferUpdate( IMatRenderContext *pRenderContext )
 	pRenderContext->GetRenderTargetDimensions( nSrcWidth, nSrcHeight );
 	pRenderContext->CopyRenderTargetToTextureEx( pTexture, 0, &srcRect );
 	pRenderContext->SetFrameBufferCopyTexture( pTexture );
-}
-
-void UpdateScreenEffectTexture( ITexture *pTexture, int x, int y, int w, int h, bool bDestFullScreen, Rect_t *pActualRect )
-{
-	Rect_t srcRect;
-	srcRect.x = x;
-	srcRect.y = y;
-	srcRect.width = w;
-	srcRect.height = h;
-
-	CMatRenderContextPtr pRenderContext( materials );
-	int nSrcWidth, nSrcHeight;
-	pRenderContext->GetRenderTargetDimensions( nSrcWidth, nSrcHeight );
-	int nDestWidth = pTexture->GetActualWidth();
-	int nDestHeight = pTexture->GetActualHeight();
-
-	Rect_t destRect = srcRect;
-	if( !bDestFullScreen && ( nSrcWidth > nDestWidth || nSrcHeight > nDestHeight ) )
-	{
-		// the source and target sizes aren't necessarily the same (specifically in dx7 where 
-		// nonpow2 rendertargets aren't supported), so lets figure it out here.
-		float scaleX = ( float )nDestWidth / ( float )nSrcWidth;
-		float scaleY = ( float )nDestHeight / ( float )nSrcHeight;
-		destRect.x = srcRect.x * scaleX;
-		destRect.y = srcRect.y * scaleY;
-		destRect.width = srcRect.width * scaleX;
-		destRect.height = srcRect.height * scaleY;
-		destRect.x = clamp( destRect.x, 0, nDestWidth );
-		destRect.y = clamp( destRect.y, 0, nDestHeight );
-		destRect.width = clamp( destRect.width, 0, nDestWidth - destRect.x );
-		destRect.height = clamp( destRect.height, 0, nDestHeight - destRect.y );
-	}
-
-	pRenderContext->CopyRenderTargetToTextureEx( pTexture, 0, &srcRect, bDestFullScreen ? NULL : &destRect );
-	pRenderContext->SetFrameBufferCopyTexture( pTexture );
-
-	if ( pActualRect )
-	{
-		pActualRect->x = destRect.x;
-		pActualRect->y = destRect.y;
-		pActualRect->width = destRect.width;
-		pActualRect->height = destRect.height;
-	}
 }
 
 void ShaderEditorInterface::OnFrame( float frametime )
@@ -214,7 +170,7 @@ void ShaderEditorInterface::OnPreRender( void *viewsetup )
 
 	IGameSystem::PreRenderAllSystems();
 }
-void ShaderEditorInterface::OnUpdateSkymask( bool bCombineMode, int x, int y, int w, int h )
+void ShaderEditorInterface::OnUpdateSkymask( bool bCombineMode )
 {
 	SetFramebufferCopyTexOverride( NULL );
 
@@ -275,10 +231,10 @@ void ShaderEditorInterface::OnUpdateSkymask( bool bCombineMode, int x, int y, in
 	if ( bCombineMode )
 		pOperation = pMatCombineMasks;
 
-	int dest_width = w;
-	int dest_height = h;
-	float src_x1 = w - 1;
-	float src_y1 = h - 1;
+	int dest_width = _MainView.width;
+	int dest_height = _MainView.height;
+	float src_x1 = _MainView.width - 1;
+	float src_y1 = _MainView.height - 1;
 
 #ifdef SHADER_EDITOR_DLL_2006
 	Frustum frustum;
@@ -298,33 +254,30 @@ void ShaderEditorInterface::OnUpdateSkymask( bool bCombineMode, int x, int y, in
 #endif
 
 	pRenderContext->PushRenderTargetAndViewport( NULL );
-	//pRenderContext->Viewport( x, y, w, h );
 	//pRenderContext->DepthRange( 0, 1 );
 	//MaterialHeightClipMode_t hClipLast = pRenderContext->GetHeightClipMode();
 	//pRenderContext->SetHeightClipMode( MATERIAL_HEIGHTCLIPMODE_DISABLE );
 	//const bool bEnableClipping = pRenderContext->EnableClipping( false );
 
 #ifndef SHADER_EDITOR_DLL_2006
-	UpdateScreenEffectTexture( GetFBTex(), x, y, w, h );
-	//pRenderContext->CopyRenderTargetToTexture( GetFBTex() );
+	pRenderContext->CopyRenderTargetToTexture( GetFBTex() );
 #endif
 
 	// do ops
 	pRenderContext->DrawScreenSpaceRectangle( pOperation,
-		x, y, dest_width, dest_height,
-		x, y, src_x1, src_y1,
-		w, h );
+		_MainView.x, _MainView.y, dest_width, dest_height,
+		0, 0, src_x1, src_y1,
+		_MainView.width, _MainView.height );
 
 	// store to mask
-	UpdateScreenEffectTexture( pSkyMask, x, y, w, h, true );
-	//pRenderContext->CopyRenderTargetToTexture( pSkyMask );
+	pRenderContext->CopyRenderTargetToTexture( pSkyMask );
 
 	// restore fb
 #ifndef SHADER_EDITOR_DLL_2006
 	pRenderContext->DrawScreenSpaceRectangle( pMatScreenRestore,
-		x, y, w, h,
-		x, y, w - 1, h - 1,
-		w, h );
+		_MainView.x, _MainView.y, _MainView.width, _MainView.height,
+		0, 0, _MainView.width - 1, _MainView.height - 1,
+		_MainView.width, _MainView.height );
 #endif
 
 	//pRenderContext->EnableClipping( bEnableClipping );
@@ -335,7 +288,6 @@ void ShaderEditorInterface::OnUpdateSkymask( bool bCombineMode, int x, int y, in
 	render->PopView( frustum );
 #endif
 }
-
 void ShaderEditorInterface::OnSceneRender()
 {
 	GetPPCache()->RenderAllEffects( true );
@@ -551,14 +503,6 @@ void ShaderEditorInterface::DrawPPEOnDemand( const int &index, const bool bInSce
 		return;
 
 	GetPPCache()->RenderSinglePPE( GetPPCache()->GetPostProcessingEffect( index ), false, bInScene );
-}
-
-void ShaderEditorInterface::DrawPPEOnDemand( const int &index, int x, int y, int w, int h, const bool bInScene )
-{
-	if ( index < 0 || index >= GetPPCache()->GetNumPostProcessingEffects() )
-		return;
-
-	GetPPCache()->RenderSinglePPE( GetPPCache()->GetPostProcessingEffect( index ), x, y, w, h, false, bInScene );
 }
 
 IMaterialVar *ShaderEditorInterface::GetPPEMaterialVarFast( ShaderEditVarToken &token,
