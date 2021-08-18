@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.40629.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vgui_controls_editor", "vgui_editor\vgui_controls_editor.vcxproj", "{68135811-E29C-24AA-47C3-405601DC25F0}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "game_shader_dx6", "materialsystem\procshader\editor_shader.vcxproj", "{F63E43F8-D184-2549-4908-96BD03BFF328}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "shadereditor_2013", "shadereditor\shadereditor_dll.vcxproj", "{A761E5B4-2A86-2F8F-65EF-856DD386AAAF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{68135811-E29C-24AA-47C3-405601DC25F0} = {68135811-E29C-24AA-47C3-405601DC25F0}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{68135811-E29C-24AA-47C3-405601DC25F0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{68135811-E29C-24AA-47C3-405601DC25F0}.Debug|Win32.Build.0 = Debug|Win32
+		{68135811-E29C-24AA-47C3-405601DC25F0}.Release|Win32.ActiveCfg = Release|Win32
+		{68135811-E29C-24AA-47C3-405601DC25F0}.Release|Win32.Build.0 = Release|Win32
+		{F63E43F8-D184-2549-4908-96BD03BFF328}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F63E43F8-D184-2549-4908-96BD03BFF328}.Debug|Win32.Build.0 = Debug|Win32
+		{F63E43F8-D184-2549-4908-96BD03BFF328}.Release|Win32.ActiveCfg = Release|Win32
+		{F63E43F8-D184-2549-4908-96BD03BFF328}.Release|Win32.Build.0 = Release|Win32
+		{A761E5B4-2A86-2F8F-65EF-856DD386AAAF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A761E5B4-2A86-2F8F-65EF-856DD386AAAF}.Debug|Win32.Build.0 = Debug|Win32
+		{A761E5B4-2A86-2F8F-65EF-856DD386AAAF}.Release|Win32.ActiveCfg = Release|Win32
+		{A761E5B4-2A86-2F8F-65EF-856DD386AAAF}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
