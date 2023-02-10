@@ -1,12 +1,10 @@
 SOURCE SHADER EDITOR
 ====================
 
-This is the source code for the Source Shader Editor (SSE) for the Source Engine. 
+This is the source code for the Source Shader Editor (SSE) for the Source SDK 2013.
 
 The repository for the Source SDK 2013 can be found here:
 http://github.com/ValveSoftware/source-sdk-2013
-The SSE can be compiled for older engine version too, including 2007, 2006 and the
-Alien Swarm SDK.
 
 Documentation on the editor itself can be found here:
 http://developer.valvesoftware.com/wiki/Category:SourceShaderEditor
@@ -56,9 +54,4 @@ the batch file to set up your paths appropriately!
 NOTES:
 --------------
 
-The libraries build by this project are shadereditor_<PLATFORM>.dll, so
-shadereditor_2013.dll, for example, and game_shader_generic_eshader_<PLATFORM>.dll
-respectively.
-
-For the 2013 SDK, the game shader library is called game_shader_dx6.dll, because
-Valve recently broke shader dll loading through the wildcard game_shader_generic*.dll.
+This fork has improved the repository so that it works with vanilla Source SDK 2013 out of the box, do not expect compatibility with any other SDKs or projects such as MapBase
